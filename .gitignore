@@ -1,10 +1,21 @@
 # Python
 __pycache__/
 *.py[cod]
+*$py.class
 venv/
 env/
+.pytest_cache/
+
+# Environments and IDEs
 .DS_Store
 node_modules/
 .idea/
 .vscode/
 *.log
+.env
+
+# Resume Data & Generated Outputs (Privacy Protection)
+data/resumes/*
+!data/resumes/.gitkeep
+outputs/parsed_resumes/*
+!outputs/parsed_resumes/.gitkeep
