@@ -11,7 +11,7 @@ An AI-assisted, privacy-first resume screening, job-matching, and candidate anal
 ---
 
 ### 📌 Project Submission Links
-- 📺 **YouTube Demo Video (< 3 min):** [Watch Demo on YouTube](https://www.youtube.com/watch?v=YOUR_YOUTUBE_DEMO_LINK) *(Paste your uploaded YouTube link here)*
+- 📺 **YouTube Demo Video (< 3 min):** [Watch Demo on YouTube](https://youtu.be/_r68ec-ZGn4?si=tihFRwGAf2NnA7qs) *(Paste your uploaded YouTube link here)*
 - 💻 **GitHub Repository:** [https://github.com/Nitesh0986/Intelligent-Resume-Analyzer_HiDevs](https://github.com/Nitesh0986/Intelligent-Resume-Analyzer_HiDevs)
 - 🚀 **Local Application URL:** `http://localhost:8501`
 - 🧪 **Test Suite:** 49/49 Passing (`pytest -v`)
