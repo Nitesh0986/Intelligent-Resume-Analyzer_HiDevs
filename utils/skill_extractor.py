@@ -1,16 +1,15 @@
 """
-Skill Extraction Module for Intelligent Resume Analyzer.
+Skill Extraction and Normalization Module for Intelligent Resume Analyzer.
 
 Provides a structured, extensible dictionary of software, engineering, and
-data science skills, and a case-insensitive extractor with symbol-safe boundary detection.
+data science skills, case-insensitive boundary detection, and canonical normalization.
 """
 
 import re
-from typing import List, Dict, Set
+from typing import List, Dict, Set, Optional
 
 
 # Extensible database mapping canonical skill names to regex patterns.
-# Note: Patterns use lookaround assertions for clean boundary matching.
 SKILLS_DATABASE: Dict[str, List[str]] = {
     # Programming Languages
     "Python": [r"(?<![a-zA-Z0-9])python(?:3)?(?![a-zA-Z0-9])"],
@@ -29,9 +28,9 @@ SKILLS_DATABASE: Dict[str, List[str]] = {
     "Kotlin": [r"(?<![a-zA-Z0-9])kotlin(?![a-zA-Z0-9])"],
 
     # Web & Full Stack Frameworks
-    "React": [r"(?<![a-zA-Z0-9])(?:react(?:\.?js)?|react-native)(?![a-zA-Z0-9])"],
-    "Node.js": [r"(?<![a-zA-Z0-9])(?:node(?:\.?js)?)(?![a-zA-Z0-9])"],
-    "Express": [r"(?<![a-zA-Z0-9])(?:express(?:\.?js)?)(?![a-zA-Z0-9])"],
+    "React": [r"(?<![a-zA-Z0-9])(?:react(?:\.?js)?|react\s*js|react-native)(?![a-zA-Z0-9])"],
+    "Node.js": [r"(?<![a-zA-Z0-9])(?:node(?:\.?js)?|node\s*js)(?![a-zA-Z0-9])"],
+    "Express": [r"(?<![a-zA-Z0-9])(?:express(?:\.?js)?|express\s*js)(?![a-zA-Z0-9])"],
     "HTML": [r"(?<![a-zA-Z0-9])(?:html|html5)(?![a-zA-Z0-9])"],
     "CSS": [r"(?<![a-zA-Z0-9])(?:css|css3)(?![a-zA-Z0-9])"],
     "FastAPI": [r"(?<![a-zA-Z0-9])fastapi(?![a-zA-Z0-9])"],
@@ -89,16 +88,137 @@ _COMPILED_SKILLS = {
     for skill_name, patterns in SKILLS_DATABASE.items()
 }
 
+# Explicit aliases for common variations and abbreviations
+SKILL_NORMALIZATION_MAP: Dict[str, str] = {
+    "react.js": "React",
+    "reactjs": "React",
+    "react js": "React",
+    "node.js": "Node.js",
+    "nodejs": "Node.js",
+    "node js": "Node.js",
+    "js": "JavaScript",
+    "javascript": "JavaScript",
+    "ts": "TypeScript",
+    "typescript": "TypeScript",
+    "scikit learn": "Scikit-learn",
+    "scikit-learn": "Scikit-learn",
+    "sklearn": "Scikit-learn",
+    "postgres": "PostgreSQL",
+    "postgresql": "PostgreSQL",
+    "k8s": "Kubernetes",
+    "kubernetes": "Kubernetes",
+    "golang": "Go",
+    "c#": "C#",
+    "c sharp": "C#",
+    "c-sharp": "C#",
+    "c++": "C++",
+    "cpp": "C++",
+    "tf": "TensorFlow",
+    "tensorflow": "TensorFlow",
+    "ml": "Machine Learning",
+    "machine learning": "Machine Learning",
+    "dl": "Deep Learning",
+    "deep learning": "Deep Learning",
+    "nlp": "NLP",
+    "natural language processing": "NLP",
+    "cv": "Computer Vision",
+    "computer vision": "Computer Vision",
+    "aws": "AWS",
+    "amazon web services": "AWS",
+    "gcp": "Google Cloud",
+    "google cloud": "Google Cloud",
+    "azure": "Azure",
+    "microsoft azure": "Azure",
+    "fastapi": "FastAPI",
+    "flask": "Flask",
+    "django": "Django",
+    "docker": "Docker",
+    "git": "Git",
+    "github": "GitHub",
+    "gitlab": "GitLab",
+    "sql": "SQL",
+    "mysql": "MySQL",
+    "mongodb": "MongoDB",
+    "sqlite": "SQLite",
+    "redis": "Redis",
+    "pandas": "Pandas",
+    "numpy": "NumPy",
+    "streamlit": "Streamlit",
+    "linux": "Linux",
+    "rest api": "REST API",
+    "restful api": "REST API",
+    "rest apis": "REST API",
+    "restful apis": "REST API",
+}
+
+
+def normalize_skill(skill: Optional[str]) -> str:
+    """
+    Normalize skill variations to their canonical representation.
+
+    Examples:
+        'React.js' -> 'React'
+        'Node JS' -> 'Node.js'
+        'scikit learn' -> 'Scikit-learn'
+        'JS' -> 'JavaScript'
+        'PostgreSQL' -> 'PostgreSQL'
+
+    Args:
+        skill: Raw skill string or variation.
+
+    Returns:
+        Canonical skill name.
+    """
+    if not skill:
+        return ""
+
+    cleaned = skill.strip()
+    lookup = cleaned.lower()
+
+    # 1. Direct match in dictionary of common aliases
+    if lookup in SKILL_NORMALIZATION_MAP:
+        return SKILL_NORMALIZATION_MAP[lookup]
+
+    # 2. Check if it matches a canonical database key directly
+    for canonical_name in SKILLS_DATABASE:
+        if lookup == canonical_name.lower():
+            return canonical_name
+
+    # 3. Fallback: Clean capitalization
+    return cleaned.title()
+
+
+def normalize_skill_list(skills: List[str]) -> List[str]:
+    """
+    Normalize and deduplicate a list of skill strings.
+
+    Args:
+        skills: List of raw skill strings.
+
+    Returns:
+        Sorted, deduplicated list of canonical skill names.
+    """
+    if not skills:
+        return []
+
+    normalized_set: Set[str] = set()
+    for s in skills:
+        norm = normalize_skill(s)
+        if norm:
+            normalized_set.add(norm)
+
+    return sorted(list(normalized_set))
+
 
 def extract_skills(text: str) -> List[str]:
     """
-    Extract technical and domain skills from resume text.
+    Extract technical and domain skills from resume or job description text.
 
     Uses case-insensitive pattern matching against the curated skills database,
     preventing duplicate entries and preserving canonical naming.
 
     Args:
-        text: Normalized text from the resume.
+        text: Normalized text from the document.
 
     Returns:
         Sorted list of unique detected skill names.
@@ -112,7 +232,6 @@ def extract_skills(text: str) -> List[str]:
         for pattern in patterns:
             if pattern.search(text):
                 detected_skills.add(skill_name)
-                break  # Matched this skill, continue to next skill
+                break
 
-    # Return sorted list for consistent, deterministic output
     return sorted(list(detected_skills))

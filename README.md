@@ -1,33 +1,54 @@
 # Intelligent Resume Analyzer (HiDevs Challenge)
 
-An AI-assisted resume parsing and candidate analysis engine developed for the HiDevs Intelligent Resume Analyzer project.
+An AI-assisted resume parsing and job description matching engine developed in **100% Python** for the HiDevs Intelligent Resume Analyzer project.
 
-## Day 1: Resume Parsing Pipeline
+---
 
-The Day 1 implementation establishes a robust, deterministic parsing pipeline that converts raw PDF resumes into structured JSON models and displays them in an interactive Streamlit UI.
+## Capabilities Overview
 
-### Architecture & Pipeline Flow
+- **Day 1: Resume Parsing Pipeline**
+  - Robust multi-page PDF text extraction via `pypdf` with corruption/encryption guards.
+  - Unicode sanitization, whitespace normalization, and bullet formatting.
+  - Named entity heuristics (Name, Email, Phone).
+  - Extensible software/tech skill dictionary with case-insensitive boundary matching.
+  - Section segmentation for Experience and Education.
+  - Structured JSON export.
 
-```
-PDF Resume
-    ↓
-PDF Text Extraction (pypdf with error/encryption handling)
-    ↓
-Text Sanitization & Normalization (utils/preprocess.py)
-    ↓
-Entity & Section Extraction (utils/parser.py, utils/skill_extractor.py)
-    ├── Candidate Name
-    ├── Email
-    ├── Phone
-    ├── Technical Skills
-    ├── Education
-    └── Experience
-    ↓
-Structured Python Dictionary
-    ↓
-JSON Export (outputs/parsed_resumes/)
-    ↓
-Streamlit Preview UI (app.py)
+- **Day 2: Job Matching Engine**
+  - Automated Job Description requirement parsing (required vs. preferred skills, experience years, education).
+  - Canonical skill normalization (e.g. `React.js` -> `React`, `Node JS` -> `Node.js`, `scikit learn` -> `Scikit-learn`, `JS` -> `JavaScript`).
+  - Matched vs. Missing skills categorization.
+  - Transparent 0–100 compatibility scoring algorithm:
+    - **Skills Match:** 70%
+    - **Experience Match:** 20%
+    - **Education Match:** 10%
+  - Dynamic weight rebalancing when experience/education criteria are unavailable.
+  - Explainable recommendation tags: *Strong Match* (>=75), *Moderate Match* (50–74), *Needs Improvement* (<50).
+  - Match report download (JSON).
+
+---
+
+## Architecture & Data Flow
+
+```text
+Parsed Resume (PDF)                 Job Description (Text)
+         │                                    │
+         ▼                                    ▼
+Resume Entity Extraction             Job Requirement Extraction
+(Name, Contact, Skills, Exp, Edu)   (Required/Preferred Skills, Exp, Degree)
+         │                                    │
+         └─────────────────┬──────────────────┘
+                           ▼
+               Canonical Skill Normalization
+                           ▼
+               Skill, Exp & Edu Matching
+                           ▼
+          Weighted Compatibility Scoring (0–100)
+             [Skills: 70% | Exp: 20% | Edu: 10%]
+                           ▼
+               Recommendation & Explanation
+                           ▼
+                  Streamlit Dashboard
 ```
 
 ---
@@ -36,27 +57,40 @@ Streamlit Preview UI (app.py)
 
 ```text
 Intelligent-Resume-Analyzer_HiDevs/
-├── app.py                     # Streamlit web application
-├── requirements.txt           # Minimal Day 1 dependencies (pypdf, streamlit, pytest)
-├── README.md                  # Project documentation & runbook
-├── .gitignore                 # Configured for privacy and clean Git history
+├── app.py                     # Streamlit web application (Day 1 + Day 2)
+├── requirements.txt           # Minimal dependencies (streamlit, pypdf, pytest)
+├── README.md                  # Complete documentation
+├── .gitignore                 # Privacy-safe git rules
 │
 ├── utils/
-│   ├── __init__.py            # Utility package exports
+│   ├── __init__.py            # Package exports
 │   ├── parser.py              # PDF extraction, entity/section heuristics, JSON saver
-│   ├── preprocess.py          # Whitespace, bullet, ligature & quote normalizer
-│   └── skill_extractor.py     # Extensible skills database & symbol-safe regex matcher
+│   ├── preprocess.py          # Whitespace, bullet & ligature normalizer
+│   ├── skill_extractor.py     # Skill dictionary & normalization engine
+│   └── matcher.py             # JD requirement parsing, matching & weighted scoring
 │
 ├── data/
-│   └── resumes/               # Directory for input resumes (with sample test PDF)
+│   └── resumes/               # Input resumes (includes sample synthetic PDF)
 │
 ├── outputs/
-│   └── parsed_resumes/        # Directory for automatically saved JSON output files
+│   └── parsed_resumes/        # Saved JSON output files
 │
 └── tests/
     ├── __init__.py
-    └── test_parser.py         # Pytest suite testing extraction, boundaries & errors
+    ├── test_parser.py         # Day 1 test suite (11 tests)
+    └── test_matcher.py        # Day 2 test suite (12 tests)
 ```
+
+---
+
+## Technology Stack
+
+- **Language:** Python 3.14
+- **Web UI:** Streamlit
+- **Document Processing:** `pypdf`
+- **Matching & Analysis:** Python standard library (`re`, `json`, `pathlib`, `typing`, `logging`, `datetime`)
+- **Testing:** `pytest`
+- **Zero External AI / LLM APIs:** 100% deterministic, explainable, and offline.
 
 ---
 
@@ -76,26 +110,27 @@ Intelligent-Resume-Analyzer_HiDevs/
 
 ## Running the Application
 
-To launch the interactive Streamlit user interface:
+To launch the Streamlit dashboard:
 
 ```powershell
 streamlit run app.py
 ```
 
-Open your browser at `http://localhost:8501`.
+Open `http://localhost:8501` in your browser.
 
-### Using the App:
-1. Upload any standard PDF resume (a sample is provided at `data/resumes/sample_synthetic_resume.pdf`).
-2. Click **🚀 Analyze Resume**.
-3. View the candidate's profile metrics (Name, Email, Phone), technical skills badges, and separated Experience and Education sections.
-4. Download the generated structured JSON file or view it directly in the UI. Parsed results are automatically saved to `outputs/parsed_resumes/`.
+### How to Use:
+1. **Upload Resume**: Select any standard PDF resume (a sample is provided at `data/resumes/sample_synthetic_resume.pdf`).
+2. **Click "Parse Resume"**: View parsed candidate profile, detected skills, and extracted sections.
+3. **Provide Job Description**: Paste a target job description or click **"Load Sample Job Description"**.
+4. **Click "Analyze Job Match"**: Inspect the overall compatibility score (0–100), dimension breakdown (Skills 70%, Experience 20%, Education 10%), Matched vs. Missing skills badges, and the narrative evaluation.
+5. **Download Report**: Export the structured Match Report JSON.
 
 ---
 
 ## Running Tests
 
-Run the automated test suite with pytest:
+Run the complete test suite (23 tests across Day 1 & Day 2):
 
 ```powershell
-pytest tests/test_parser.py -v
+pytest tests/ -v
 ```
