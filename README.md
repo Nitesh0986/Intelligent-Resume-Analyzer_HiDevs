@@ -1,6 +1,21 @@
 # Intelligent Resume Analyzer
 
-An AI-assisted, privacy-first resume screening, job-matching, and candidate analysis application developed in pure Python and Streamlit for the HiDevs Challenge.
+An AI-assisted, privacy-first resume screening, job-matching, and candidate analysis application developed in pure Python and Streamlit for the **HiDevs Community Challenge**.
+
+[![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)
+[![Streamlit](https://img.shields.io/badge/Streamlit-1.35+-FF4B4B.svg)](https://streamlit.io)
+[![Tests Passing](https://img.shields.io/badge/tests-49%2F49%20passing-brightgreen.svg)](tests/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![Demo Video](https://img.shields.io/badge/YouTube-Demo%20Video-red.svg)](https://www.youtube.com/watch?v=YOUR_YOUTUBE_DEMO_LINK)
+
+---
+
+### 📌 Project Submission Links
+- 📺 **YouTube Demo Video (< 3 min):** [Watch Demo on YouTube](https://www.youtube.com/watch?v=YOUR_YOUTUBE_DEMO_LINK) *(Paste your uploaded YouTube link here)*
+- 💻 **GitHub Repository:** [https://github.com/Nitesh0986/Intelligent-Resume-Analyzer_HiDevs](https://github.com/Nitesh0986/Intelligent-Resume-Analyzer_HiDevs)
+- 🚀 **Local Application URL:** `http://localhost:8501`
+- 🧪 **Test Suite:** 49/49 Passing (`pytest -v`)
+- 👤 **Evaluator Collaboration:** Shared with `deepakchawla`
 
 ---
 
@@ -296,11 +311,18 @@ The application includes defensive input handling across all layers:
 
 ## Demo
 
+### 📺 3-Minute Project Demo Video
+Watch the complete application walkthrough demonstration on YouTube:
+
+👉 **[Watch Project Demo Video on YouTube](https://www.youtube.com/watch?v=YOUR_YOUTUBE_DEMO_LINK)**
+
+> *Note for Evaluators: If viewing offline, you can also run the application locally in one command (`streamlit run app.py`) or inspect the 3-minute video link above.*
+
 ### 3-Minute Video Presentation Structure
-- **0:00 – 0:20 | Introduction:** Problem statement and project architecture overview.
-- **0:20 – 0:50 | Resume Ingestion:** Uploading a PDF resume and showing instant entity extraction.
-- **0:50 – 1:20 | Candidate Information:** Reviewing candidate profile, contact details, identified skills, and background.
-- **1:20 – 1:50 | Job Description Matching:** Loading target job criteria and triggering match evaluation.
+- **0:00 – 0:20 | Introduction:** Problem statement, privacy-first offline architecture, zero-LLM deterministic design.
+- **0:20 – 0:50 | Resume Ingestion:** Uploading a PDF resume and instant entity extraction (`pypdf`).
+- **0:50 – 1:20 | Candidate Information:** Reviewing candidate profile, contact details, identified skills, and background sections.
+- **1:20 – 1:50 | Job Description Matching:** Loading target job criteria (preset or custom) and triggering match evaluation.
 - **1:50 – 2:20 | Compatibility Dashboard:** Explaining the 70/20/10 score breakdown, matched vs. missing skills, and dynamic re-weighting.
 - **2:20 – 2:45 | Analysis & Reports:** Reviewing factual summary, strengths, skill gaps, and testing the JSON and TXT download buttons.
 - **2:45 – 3:00 | Quality & Wrap-up:** Demonstrating test coverage (49/49 passing) and Git repository cleanliness.
@@ -311,7 +333,7 @@ The application includes defensive input handling across all layers:
 
 1. **Scanned / Image-Only PDFs:** Relies on embedded text streams. Resumes submitted as scanned bitmap images require optical character recognition (OCR), which is not bundled to maintain a lightweight runtime.
 2. **Heuristic Header Detection:** Candidate name extraction utilizes top-section structural patterns; atypical layouts (such as multi-column sidebars with names in the footer) may not detect the name accurately.
-3. **Dictionary-Bound Skill Recognition:** While the skill dictionary contains 50+ core software proficiencies and normalizes aliases, niche technologies outside the database are not captured unless added to `SKILLS_DATABASE`.
+3. **Dictionary-Bound Skill Recognition:** While the skill dictionary contains 150+ core software proficiencies and normalizes aliases, niche technologies outside the database are not captured unless added to `SKILLS_DATABASE`.
 
 ---
 
@@ -320,13 +342,17 @@ The application includes defensive input handling across all layers:
 - **Tesseract OCR Integration:** Optional OCR fallback for scanned resume images.
 - **Multi-Resume Batch Ranking:** Uploading a folder of resumes to rank candidate compatibility in a comparative table.
 - **Custom Skill Dictionary Upload:** Allowing recruiters to upload domain-specific skill taxonomy files (e.g., finance, healthcare, legal).
-- **PDF Report Generation:** Adding direct `.pdf` export formatting in addition to `.json` and `.txt`.
+- **Direct PDF Export:** Adding native `.pdf` generation alongside `.json` and `.txt`.
 
 ---
 
-## Author
+## Author & Submission Details
 
-Developed for the **HiDevs Intelligent Resume Analyzer Challenge**.
-- **Repository:** [Intelligent-Resume-Analyzer_HiDevs](https://github.com/Nitesh0986/Intelligent-Resume-Analyzer_HiDevs)
+Developed for the **HiDevs Community Challenge (Project ID: 88)**.
+- **Project Name:** `intelligent_resume_analyzer_hidevs` / `Intelligent-Resume-Analyzer_HiDevs`
+- **GitHub Repository:** [https://github.com/Nitesh0986/Intelligent-Resume-Analyzer_HiDevs](https://github.com/Nitesh0986/Intelligent-Resume-Analyzer_HiDevs)
 - **Author:** Nitesh ([@Nitesh0986](https://github.com/Nitesh0986))
+- **Reviewer / Collaborator Access:** Shared with `deepakchawla`
+- **Submission Portal:** [HiDevs Submission Portal](https://app.hidevs.xyz/projects/88?tab=submission)
 - **License:** Open for academic and evaluation review.
+
