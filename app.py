@@ -1,13 +1,10 @@
 """
 Streamlit Application for Intelligent Resume Analyzer.
 
-Day 1 & Day 2 implementation:
-- PDF upload, extraction, sanitization, and structured parsing
-- Candidate profile and section review
-- Job description input and requirements extraction
-- Deterministic resume-to-job matching engine (Skills 70%, Experience 20%, Education 10%)
-- Matched vs Missing skills breakdown and explainable recommendations
-- Structured JSON exports for resume and match report
+Comprehensive Day 1, Day 2, and Day 3 implementation:
+- Day 1: PDF upload, extraction, sanitization, and structured parsing
+- Day 2: Job description input, requirement extraction, and compatibility matching
+- Day 3: Professional candidate analysis, strengths/gaps identification, and dual-format report generation (JSON & Text)
 """
 
 import io
@@ -24,6 +21,11 @@ from utils.matcher import (
     WEIGHT_SKILLS,
     WEIGHT_EXPERIENCE,
     WEIGHT_EDUCATION,
+)
+from utils.reporter import (
+    generate_candidate_analysis,
+    generate_human_readable_report,
+    save_candidate_report,
 )
 
 # Configure logging
@@ -107,6 +109,24 @@ st.markdown(
         font-size: 0.875rem;
         font-weight: 600;
     }
+    .strength-item {
+        background-color: #F0FDF4;
+        border-left: 4px solid #22C55E;
+        padding: 10px 14px;
+        margin-bottom: 8px;
+        border-radius: 4px;
+        font-size: 0.95rem;
+        color: #166534;
+    }
+    .gap-item {
+        background-color: #FFF7ED;
+        border-left: 4px solid #F97316;
+        padding: 10px 14px;
+        margin-bottom: 8px;
+        border-radius: 4px;
+        font-size: 0.95rem;
+        color: #9A3412;
+    }
     .score-badge-strong {
         background-color: #D1FAE5;
         color: #065F46;
@@ -146,7 +166,8 @@ with st.sidebar:
         """
         **HiDevs Challenge**  
         *Day 1: Resume Parsing Pipeline*  
-        *Day 2: Job Matching Engine*
+        *Day 2: Job Matching Engine*  
+        *Day 3: Candidate Analysis & Reports*
         
         **Matching Weights:**
         - 🛠️ **Skills Match:** 70%
@@ -161,11 +182,11 @@ with st.sidebar:
         """
     )
     st.divider()
-    st.info("💡 **Scoring Note:** The overall score (0–100) represents candidate-to-job compatibility based on observable criteria.")
+    st.info("💡 **Transparency Note:** All candidate evaluations are generated deterministically based strictly on observable resume evidence.")
 
 # Main Application Header
 st.markdown('<div class="main-title">Intelligent Resume Analyzer</div>', unsafe_allow_html=True)
-st.markdown('<div class="sub-title">AI-assisted resume parsing and candidate analysis</div>', unsafe_allow_html=True)
+st.markdown('<div class="sub-title">AI-assisted resume parsing, job matching, and candidate analysis</div>', unsafe_allow_html=True)
 
 # Session state initialization
 if "parsed_data" not in st.session_state:
@@ -174,6 +195,12 @@ if "saved_file_path" not in st.session_state:
     st.session_state.saved_file_path = None
 if "match_result" not in st.session_state:
     st.session_state.match_result = None
+if "job_reqs" not in st.session_state:
+    st.session_state.job_reqs = None
+if "candidate_analysis" not in st.session_state:
+    st.session_state.candidate_analysis = None
+if "saved_report_path" not in st.session_state:
+    st.session_state.saved_report_path = None
 if "jd_text_input" not in st.session_state:
     st.session_state.jd_text_input = ""
 
@@ -226,8 +253,9 @@ if analyze_button:
                         saved_path = save_parsed_resume(parsed_result)
                         st.session_state.parsed_data = parsed_result
                         st.session_state.saved_file_path = str(saved_path)
-                        # Reset match result when new resume parsed
+                        # Reset downstream matching results when new resume is parsed
                         st.session_state.match_result = None
+                        st.session_state.candidate_analysis = None
                         st.success(f"✅ Resume successfully parsed and saved to `{saved_path.name}`!")
 
             except ValueError as ve:
@@ -292,7 +320,7 @@ if st.session_state.parsed_data:
         st.markdown("### 💼 Work Experience")
         exp_text = data.get("experience", "").strip()
         if exp_text:
-            st.text_area("Experience Section", value=exp_text, height=220, label_visibility="collapsed")
+            st.text_area("Experience Section", value=exp_text, height=200, label_visibility="collapsed")
         else:
             st.info("No distinct Work Experience section detected.")
 
@@ -300,7 +328,7 @@ if st.session_state.parsed_data:
         st.markdown("### 🎓 Education & Background")
         edu_text = data.get("education", "").strip()
         if edu_text:
-            st.text_area("Education Section", value=edu_text, height=220, label_visibility="collapsed")
+            st.text_area("Education Section", value=edu_text, height=200, label_visibility="collapsed")
         else:
             st.info("No distinct Education section detected.")
 
@@ -311,7 +339,7 @@ if st.session_state.parsed_data:
 
     col_jd_head, col_sample = st.columns([3, 1])
     with col_jd_head:
-        st.markdown("**Paste Job Description Text:**")
+        st.markdown("**Target Job Description:**")
     with col_sample:
         if st.button("📝 Load Sample Job Description"):
             st.session_state.jd_text_input = (
@@ -338,13 +366,19 @@ if st.session_state.parsed_data:
         if not jd_text.strip():
             st.warning("⚠️ Please provide a Job Description before analyzing match compatibility.")
         else:
-            with st.spinner("Analyzing candidate compatibility..."):
+            with st.spinner("Analyzing candidate compatibility and generating report..."):
                 try:
                     job_reqs = extract_job_requirements(jd_text)
                     match_eval = calculate_match_score(data, job_reqs)
+                    analysis = generate_candidate_analysis(data, job_reqs, match_eval)
+                    saved_rep = save_candidate_report(analysis)
+
                     st.session_state.match_result = match_eval
                     st.session_state.job_reqs = job_reqs
-                    st.success("✅ Match analysis complete!")
+                    st.session_state.candidate_analysis = analysis
+                    st.session_state.saved_report_path = str(saved_rep)
+
+                    st.success(f"✅ Match analysis complete! Report saved to `{saved_rep.name}`.")
                 except Exception as ex:
                     st.error(f"❌ Error during match evaluation: {ex}")
                     logger.exception("Match evaluation error: %s", ex)
@@ -369,7 +403,6 @@ if st.session_state.parsed_data:
                 """,
                 unsafe_allow_html=True,
             )
-            # Progress bar matching color intensity
             st.progress(score_val / 100.0)
 
         with rec_col:
@@ -421,37 +454,98 @@ if st.session_state.parsed_data:
             else:
                 st.success("Candidate has all primary required skills!")
 
-        # Explanation Box
-        st.markdown("#### 📝 Evaluation Summary")
-        st.info(m["explanation"])
-
-        # Export Report
+    # Step 3: Professional Candidate Analysis Report
+    if st.session_state.candidate_analysis:
+        an = st.session_state.candidate_analysis
         st.divider()
-        col_exp_left, col_exp_right = st.columns([2, 1])
+        st.markdown("## 3. Professional Candidate Analysis & Report")
 
-        export_payload = {
-            "candidate": {
+        # Executive Summary
+        st.markdown("### 📌 Executive Candidate Summary")
+        st.info(an.get("candidate_summary", "N/A"))
+
+        # Strengths & Skill Gaps
+        col_str, col_gap = st.columns(2)
+
+        with col_str:
+            st.markdown(f"### 🌟 Verified Strengths ({len(an.get('strengths', []))})")
+            strengths = an.get("strengths", [])
+            if strengths:
+                for item in strengths:
+                    st.markdown(f'<div class="strength-item">✓ {item}</div>', unsafe_allow_html=True)
+            else:
+                st.info("No specific strengths documented.")
+
+        with col_gap:
+            st.markdown(f"### 🔍 Identified Skill Gaps ({len(an.get('skill_gaps', []))})")
+            gaps = an.get("skill_gaps", [])
+            if gaps:
+                for item in gaps:
+                    st.markdown(f'<div class="gap-item">⚠️ {item}</div>', unsafe_allow_html=True)
+            else:
+                st.success("No skill gaps identified.")
+
+        # Experience & Education In-Depth Alignment
+        col_an_exp, col_an_edu = st.columns(2)
+        with col_an_exp:
+            st.markdown("### 💼 Experience Alignment")
+            st.write(an.get("experience_analysis", "N/A"))
+
+        with col_an_edu:
+            st.markdown("### 🎓 Education Alignment")
+            st.write(an.get("education_analysis", "N/A"))
+
+        # Formal Recommendation
+        st.markdown("### 🎯 Formal Assessment")
+        st.markdown(
+            f"""
+            <div class="metric-card">
+                <div class="metric-label">System Recommendation</div>
+                <div class="metric-value">{an.get('recommendation', 'N/A')}</div>
+                <div style="font-size: 0.85rem; color: #64748B; margin-top: 8px;">
+                    <em>Disclaimer: This automated evaluation is an objective compatibility assessment based on observable criteria and does not constitute a final hiring decision.</em>
+                </div>
+            </div>
+            """,
+            unsafe_allow_html=True,
+        )
+
+        # Report Downloads Section
+        st.divider()
+        st.markdown("### 📥 Export Candidate Analysis Reports")
+
+        # Generate human-readable text report
+        human_text = generate_human_readable_report(
+            an,
+            candidate_info={
                 "name": data.get("name"),
                 "email": data.get("email"),
-                "phone": data.get("phone"),
-                "skills": data.get("skills"),
             },
-            "job_matching": m,
-            "timestamp": datetime.now().isoformat(),
-        }
-        match_json_str = json.dumps(export_payload, indent=4, ensure_ascii=False)
+        )
+        json_report_str = json.dumps(an, indent=4, ensure_ascii=False)
         timestamp_str = datetime.now().strftime("%Y%m%d_%H%M%S")
 
-        with col_exp_left:
-            with st.expander("🔍 View Complete Match JSON Report"):
-                st.json(export_payload)
+        d_col1, d_col2 = st.columns(2)
 
-        with col_exp_right:
+        with d_col1:
             st.download_button(
-                label="📥 Download Match Report",
-                data=match_json_str,
-                file_name=f"match_report_{timestamp_str}.json",
+                label="📥 Download JSON Report",
+                data=json_report_str,
+                file_name=f"candidate_report_{timestamp_str}.json",
                 mime="application/json",
+                type="primary",
+                use_container_width=True,
+            )
+
+        with d_col2:
+            st.download_button(
+                label="📄 Download Text Report (.txt)",
+                data=human_text,
+                file_name=f"candidate_report_{timestamp_str}.txt",
+                mime="text/plain",
                 type="secondary",
                 use_container_width=True,
             )
+
+        with st.expander("🔍 Preview Text Report"):
+            st.code(human_text, language="text")

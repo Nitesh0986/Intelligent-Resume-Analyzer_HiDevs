@@ -42,7 +42,7 @@ def extract_years_of_experience(text: str) -> Optional[float]:
     Returns:
         Float representing minimum years of experience, or None if not detected.
     """
-    if not text:
+    if not isinstance(text, str) or not text.strip():
         return None
 
     # Pattern for explicit experience statements
@@ -78,7 +78,7 @@ def extract_candidate_experience_years(text: str) -> Optional[float]:
     Returns:
         Estimated years of experience, or None if not reliably found.
     """
-    if not text:
+    if not isinstance(text, str) or not text.strip():
         return None
 
     # First check explicit mention
@@ -136,7 +136,7 @@ def extract_education_level(text: str) -> Optional[str]:
     Returns:
         Standardized degree level ('PhD', 'Master', 'Bachelor', 'Associate'), or None.
     """
-    if not text:
+    if not isinstance(text, str) or not text.strip():
         return None
 
     lower = text.lower()

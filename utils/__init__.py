@@ -1,6 +1,7 @@
 """
 Utility package for Intelligent Resume Analyzer.
-Provides text preprocessing, skill extraction, PDF parsing, and job matching modules.
+Provides text preprocessing, skill extraction, PDF parsing, job matching,
+and professional report generation modules.
 """
 
 from .preprocess import clean_text
@@ -30,6 +31,16 @@ from .matcher import (
     WEIGHT_EXPERIENCE,
     WEIGHT_EDUCATION,
 )
+from .reporter import (
+    generate_candidate_summary,
+    identify_strengths,
+    identify_skill_gaps,
+    analyze_experience_alignment,
+    analyze_education_alignment,
+    generate_candidate_analysis,
+    generate_human_readable_report,
+    save_candidate_report,
+)
 
 __all__ = [
     "clean_text",
@@ -53,4 +64,12 @@ __all__ = [
     "WEIGHT_SKILLS",
     "WEIGHT_EXPERIENCE",
     "WEIGHT_EDUCATION",
+    "generate_candidate_summary",
+    "identify_strengths",
+    "identify_skill_gaps",
+    "analyze_experience_alignment",
+    "analyze_education_alignment",
+    "generate_candidate_analysis",
+    "generate_human_readable_report",
+    "save_candidate_report",
 ]

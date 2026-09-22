@@ -19,3 +19,5 @@ data/resumes/*
 !data/resumes/.gitkeep
 outputs/parsed_resumes/*
 !outputs/parsed_resumes/.gitkeep
+outputs/reports/*
+!outputs/reports/.gitkeep
