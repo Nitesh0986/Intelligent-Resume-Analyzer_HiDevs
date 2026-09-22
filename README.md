@@ -15,7 +15,7 @@ An AI-assisted, privacy-first resume screening, job-matching, and candidate anal
 - 💻 **GitHub Repository:** [https://github.com/Nitesh0986/Intelligent-Resume-Analyzer_HiDevs](https://github.com/Nitesh0986/Intelligent-Resume-Analyzer_HiDevs)
 - 🚀 **Local Application URL:** `http://localhost:8501`
 - 🧪 **Test Suite:** 49/49 Passing (`pytest -v`)
-- 👤 **Evaluator Collaboration:** Shared with `deepakchawla`
+  
 
 ---
 
@@ -314,7 +314,7 @@ The application includes defensive input handling across all layers:
 ### 📺 3-Minute Project Demo Video
 Watch the complete application walkthrough demonstration on YouTube:
 
-👉 **[Watch Project Demo Video on YouTube](https://www.youtube.com/watch?v=YOUR_YOUTUBE_DEMO_LINK)**
+👉 **[Watch Project Demo Video on YouTube](https://www.youtube.com/watch?v=_r68ec-ZGn4)**
 
 > *Note for Evaluators: If viewing offline, you can also run the application locally in one command (`streamlit run app.py`) or inspect the 3-minute video link above.*
 
@@ -352,7 +352,6 @@ Developed for the **HiDevs Community Challenge (Project ID: 88)**.
 - **Project Name:** `intelligent_resume_analyzer_hidevs` / `Intelligent-Resume-Analyzer_HiDevs`
 - **GitHub Repository:** [https://github.com/Nitesh0986/Intelligent-Resume-Analyzer_HiDevs](https://github.com/Nitesh0986/Intelligent-Resume-Analyzer_HiDevs)
 - **Author:** Nitesh ([@Nitesh0986](https://github.com/Nitesh0986))
-- **Reviewer / Collaborator Access:** Shared with `deepakchawla`
 - **Submission Portal:** [HiDevs Submission Portal](https://app.hidevs.xyz/projects/88?tab=submission)
 - **License:** Open for academic and evaluation review.
 
