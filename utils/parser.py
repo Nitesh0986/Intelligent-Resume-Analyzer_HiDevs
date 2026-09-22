@@ -331,8 +331,15 @@ def parse_resume(source: Union[str, Path, io.BytesIO, Any]) -> Dict[str, Any]:
         Dictionary adhering to the Day 1 structured schema.
     """
     # Determine whether input is raw text or a PDF source
-    if isinstance(source, str) and not source.lower().endswith(".pdf") and len(source) > 200:
-        # Pre-extracted text passed directly
+    is_raw_text = False
+    if isinstance(source, str):
+        if "\n" in source or not source.lower().endswith(".pdf"):
+            try:
+                is_raw_text = not Path(source).is_file()
+            except Exception:
+                is_raw_text = True
+
+    if is_raw_text:
         cleaned_text = clean_text(source)
     else:
         cleaned_text = extract_text_from_pdf(source)

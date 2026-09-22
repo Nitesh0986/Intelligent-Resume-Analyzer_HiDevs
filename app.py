@@ -13,7 +13,6 @@ import io
 import json
 import logging
 from datetime import datetime
-from pathlib import Path
 import streamlit as st
 
 from utils.parser import parse_resume, save_parsed_resume

@@ -4,7 +4,6 @@ Covers requirement extraction, skill normalization, 100% match, partial match,
 zero match, empty inputs, missing experience, duplicate handling, and scoring.
 """
 
-import pytest
 from utils.matcher import (
     extract_job_requirements,
     extract_years_of_experience,
@@ -217,3 +216,12 @@ def test_candidate_experience_date_ranges():
     years = extract_candidate_experience_years(exp_text)
     assert years is not None
     assert years >= 6.0
+
+
+def test_education_level_extraction():
+    """Verify degree extraction across various academic titles."""
+    assert extract_education_level("Ph.D. in Computer Science") == "PhD"
+    assert extract_education_level("Master of Science in Software Engineering") == "Master"
+    assert extract_education_level("Bachelor of Technology in Information Technology") == "Bachelor"
+    assert extract_education_level("Associate Degree in Web Development") == "Associate"
+    assert extract_education_level("Self-taught programmer") is None

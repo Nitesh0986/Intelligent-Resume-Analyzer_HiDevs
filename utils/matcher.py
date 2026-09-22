@@ -11,7 +11,7 @@ from datetime import datetime
 from typing import Any, Dict, List, Optional, Tuple
 
 from .preprocess import clean_text
-from .skill_extractor import extract_skills, normalize_skill, normalize_skill_list
+from .skill_extractor import extract_skills, normalize_skill_list
 
 # Documented Weight Distribution for Overall Score
 WEIGHT_SKILLS = 0.70      # 70% Skill Match

@@ -5,12 +5,11 @@ Verifies parsing, preprocessing, skill extraction, regex extractors, and JSON ex
 
 import io
 import json
-from pathlib import Path
 import pytest
 import pypdf
 
 from utils.preprocess import clean_text
-from utils.skill_extractor import extract_skills, SKILLS_DATABASE
+from utils.skill_extractor import extract_skills
 from utils.parser import (
     extract_text_from_pdf,
     extract_email,

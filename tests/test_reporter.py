@@ -5,7 +5,6 @@ missing experience, empty inputs, malformed data, and JSON / text export.
 """
 
 import json
-from pathlib import Path
 import pytest
 
 from utils.reporter import (
@@ -166,3 +165,24 @@ def test_save_candidate_report(tmp_path, sample_complete_candidate, sample_job_r
 
     assert loaded["overall_score"] == 100.0
     assert loaded["matched_skills"] == ["Docker", "FastAPI", "PostgreSQL", "Python"]
+
+
+def test_standalone_reporter_helpers(sample_complete_candidate, sample_job_reqs):
+    match_eval = calculate_match_score(sample_complete_candidate, sample_job_reqs)
+    
+    summary = generate_candidate_summary(sample_complete_candidate)
+    assert "Alex Smith" in summary
+    
+    strengths = identify_strengths(sample_complete_candidate, sample_job_reqs, match_eval)
+    assert len(strengths) > 0
+    assert any("Docker" in s for s in strengths)
+    
+    gaps = identify_skill_gaps(sample_job_reqs, match_eval)
+    assert len(gaps) == 1
+    assert "All primary required skills are satisfied" in gaps[0]
+    
+    exp_an = analyze_experience_alignment(sample_complete_candidate, sample_job_reqs, match_eval)
+    assert "satisfying the target requirement" in exp_an
+    
+    edu_an = analyze_education_alignment(sample_complete_candidate, sample_job_reqs, match_eval)
+    assert "fulfills or exceeds" in edu_an
